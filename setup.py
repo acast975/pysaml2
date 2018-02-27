@@ -15,7 +15,8 @@ install_requires = [
     'pyOpenSSL',
     'python-dateutil',
     'defusedxml',
-    'six'
+    'six',
+    'xmlsec'
 ]
 
 extras_require = {
