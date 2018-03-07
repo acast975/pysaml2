@@ -39,4 +39,5 @@ def replace_retrieval_method(xmlstr):
     for _, new in replacements:
         parent = parent_map[new]
         parent.remove(new)
-    return ET.tostring(root)
+
+    return ET.tostring(root, encoding="UTF-8").decode('utf-8')

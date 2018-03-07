@@ -15,6 +15,7 @@ from saml2.sigver import SignatureError
 from pathutils import full_path
 
 FALSE_ASSERT_SIGNED = full_path("saml_false_signed.xml")
+ENC_ASSERT_RETR_METHOD = full_path("encrypted_assertion_response_retrieval_method.xml")
 
 TIMESLACK = 62000000  # Roughly +- 24 month
 
@@ -112,6 +113,30 @@ class TestResponse:
             pass
         else:
             assert False
+
+    def test_encrypted_assertion_retrieval_method(self):
+        with open(ENC_ASSERT_RETR_METHOD) as fp:
+            xml_response = fp.read()
+        resp = response_factory(
+            xml_response, self.conf,
+            return_addrs=["http://lingon.catalogix.se:8087/"],
+            outstanding_queries={
+                "id12": "http://foo.example.com/service"
+            },
+            timeslack=TIMESLACK, decode=False,
+            origxml=xml_response)
+
+        assert isinstance(resp, StatusResponse)
+        assert isinstance(resp, AuthnResponse)
+        resp.came_from = "http://foo.example.com/service"
+        resp.in_response_to = "id12"
+        resp.require_response_signature = False
+        resp.require_signature = False
+        resp.do_not_verify = True
+        resp.parse_assertion()
+        si = resp.session_info()
+        assert si
+        assert si["session_index"] == 'id-t4RLs4qJE3ZmkJe81'
 
     def test_other_response(self):
         with open(full_path("attribute_response.xml")) as fp:
